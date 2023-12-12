@@ -15,23 +15,18 @@ SECTION "Main", ROM0
 ; ------------------------------------------------------------------------------
 Main:
   di
-
   ; Disable audio
   ld a, 0
   ld [rNR52], a
-
   ; Disable the LCD
   WaitForVblank
   ld a, 0
   ld [rLCDC], a
-
   ; Zero out the RAM
   call ClearWRAM
-
   ; Initialize the DMA routine
   call WriteDMARoutine
   call DMATransfer
-
   ; Clear the active tileset
   ld hl, $9000
   ld bc, $1800
@@ -41,7 +36,6 @@ Main:
   ld a, b
   or a, c
   jr nz, :-
-
   ; Clear both backgrounds
   ld hl, $9800
   ld bc, $800
@@ -51,17 +45,13 @@ Main:
   ld a, b
   or a, c
   jr nz, :-
-
   ; Initialize palettes
   ld a, %11100100
   ld [rBGP], a
   ld [rOBP0], a
   ld [rOBP1], a
-
-  ; TODO: Abstract this to handle separate game state controllers for each of
-  ;       the demos.
+  ; Execute the title screen's initialization routine
   call TitleScreen.init
-
 
 ; ------------------------------------------------------------------------------
 ; `func GameLoop()`
@@ -69,6 +59,7 @@ Main:
 ; The main loop for the game that handles all logic and rendering.
 ; ------------------------------------------------------------------------------
 GameLoop:
+  ; TODO: This should call the correct loop handler based on the game state
   call TitleScreen.loop
   jr GameLoop
 
@@ -169,49 +160,6 @@ ReadJoypad::
   xor b
   and b
   ld [bJoypadPressed], a
-  ret
-
-; ------------------------------------------------------------------------------
-; `func FreeMoveCamera()`
-;
-; Tests the joypad masks by moving the viewport in response to d-pad input.
-; ------------------------------------------------------------------------------
-FreeMoveCamera::
-  ld hl, rSCX
-  ld a, [bJoypadDown]
-  ld b, a
-  and BUTTON_RIGHT
-  jr z, .check_left
-  inc [hl]
-  inc [hl]
-  jr .check_up
-.check_left
-  ld a, b
-  and BUTTON_LEFT
-  jr z, .check_up
-  dec [hl]
-  dec [hl]
-.check_up
-  ld hl, rSCY
-  ld a, b
-  and BUTTON_UP
-  jr z, .check_down
-  ld a, [rSCY]
-  cp 0
-  jr z, .done
-  dec [hl]
-  dec [hl]
-  jr .done
-.check_down
-  ld a, b
-  and BUTTON_DOWN
-  jr z, .done
-  ld a, [rSCY]
-  cp 112
-  jr z, .done
-  inc [hl]
-  inc [hl]
-.done
   ret
 
 SECTION "Tile Data", ROMX, BANK[1]
