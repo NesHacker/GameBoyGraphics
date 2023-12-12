@@ -1,6 +1,20 @@
 INCLUDE "main.inc"
 INCLUDE "hardware.inc"
 
+; ------------------------------------------------------------------------------
+; `macro SetGameState(state_value)`
+;
+; Disables the LCD and all interrupts then sets the given game state.
+; ------------------------------------------------------------------------------
+MACRO SetGameState
+  di
+  ld a, 0
+  ld [rLCDC], a
+  call InitDisplayState
+  ld a, \1
+  ld [bGameState], a
+ENDM
+
 SECTION "Header", ROM0[$100]
   jp Main
   ds $150 - @, 0  ; Header space. RGBFIX requires that it be zero filled.
@@ -14,6 +28,7 @@ SECTION "Main", ROM0
 ; main game loop.
 ; ------------------------------------------------------------------------------
 Main:
+  ; Global interrupt disable
   di
   ; Disable audio
   ld a, 0
@@ -23,22 +38,48 @@ Main:
   ld a, 0
   ld [rLCDC], a
   ; Zero out the RAM
-  call ClearWRAM
+  ld bc, $2000
+  ld hl, $C000
+  call ClearData
+  ; Initialize the state of the LCD
+  call InitDisplayState
   ; Initialize the DMA routine
   call WriteDMARoutine
+  ; Set the initial game state
+  ld a, STATE_TITLE
+  ld [bGameState], a
+  ; Execute the title screen's initialization routine
+  call TitleInit
+  jp GameLoop
+
+; ------------------------------------------------------------------------------
+; `func InitDisplayState()`
+;
+; Initializes the display so that it is in a consistent state prior to loading
+; a new screen for the game.
+; ------------------------------------------------------------------------------
+InitDisplayState:
+  ; Disable LCD interrupts and reset the scroll position
+  ld a, 0
+  ld [rSTAT], a
+  ld [rIE], a
+  ld [rSCX], a
+  ld [rSCY], a
   ; Clear the active tileset and both backgrounds
   ld hl, $9000
   ld bc, $2000
   call ClearData
-  ; Initialize palettes
+  ; Clear the OAM
+  ld bc, 40 * 4
+  ld hl, $C100
+  ld d, $FF
+  call FillData
+  ; Reset palettes
   ld a, %11100100
   ld [rBGP], a
   ld [rOBP0], a
   ld [rOBP1], a
-  ; Execute the title screen's initialization routine
-  ; call TitleScreen.init
-
-  call Demo4Init
+  ret
 
 ; ------------------------------------------------------------------------------
 ; `func GameLoop()`
@@ -48,29 +89,97 @@ Main:
 GameLoop:
   WaitForVblank
   call ReadJoypad
-
-  ; TODO: This should call the correct loop handler based on the game state
-  ; call TitleScreen.loop
+  ld a, [bGameState]
+  cp a, STATE_DEMO_SELECT
+  jr z, .demo_select
+  cp a, STATE_DEMO1
+  jr z, .demo1
+  cp a, STATE_DEMO2
+  jr z, .demo2
+  cp a, STATE_DEMO3
+  jr z, .demo3
+  cp a, STATE_DEMO4
+  jr z, .demo4
+.title
+  call TitleLoop
+  jr .done
+.demo_select
+  call DemoSelectLoop
+  jr .done
+.demo1
+  call Demo1Loop
+  jr .done
+.demo2
+  call Demo2Loop
+  jr .done
+.demo3
+  call Demo3Loop
+  jr .done
+.demo4
   call Demo4Loop
-
+  jr .done
+.done
   WaitForVblankEnd
   jr GameLoop
 
 ; ------------------------------------------------------------------------------
-; `func ClearWRAM()`
+; `func LoadTitle()`
 ;
-; Clears all working RAM from `$C000` through `$DFFF` by setting each byte to 0.
+; Transitions the game state and loads the title screen.
 ; ------------------------------------------------------------------------------
-ClearWRAM:
-  ld bc, $2000
-  ld hl, $C000
-.clear_loop
-  ld a, 0
-  ld [hli], a
-  dec bc
-  ld a, b
-  or a, c
-  jr nz, .clear_loop
+LoadTitle::
+  SetGameState STATE_TITLE
+  call TitleInit
+  ret
+
+; ------------------------------------------------------------------------------
+; `func LoadDemoSelect()`
+;
+; Transitions the game state and loads the demo select screen.
+; ------------------------------------------------------------------------------
+LoadDemoSelect::
+  SetGameState STATE_DEMO_SELECT
+  call DemoSelectInit
+  ret
+
+; ------------------------------------------------------------------------------
+; `func LoadDemo1()`
+;
+; Loads the first demo.
+; ------------------------------------------------------------------------------
+LoadDemo1::
+  SetGameState STATE_DEMO1
+  call Demo1Init
+  ret
+
+; ------------------------------------------------------------------------------
+; `func LoadDemo2()`
+;
+; Loads the second demo.
+; ------------------------------------------------------------------------------
+LoadDemo2::
+  SetGameState STATE_DEMO2
+  call Demo2Init
+  ret
+
+; ------------------------------------------------------------------------------
+; `func LoadDemo3()`
+;
+; Loads the third demo.
+; ------------------------------------------------------------------------------
+LoadDemo3::
+  SetGameState STATE_DEMO3
+  call Demo3Init
+  ret
+
+; ------------------------------------------------------------------------------
+; `func LoadDemo4()`
+;
+; Loads the fourth demo.
+; ------------------------------------------------------------------------------
+LoadDemo4::
+  SetGameState STATE_DEMO4
+  call Demo4Init
   ret
 
 ; ------------------------------------------------------------------------------
@@ -167,7 +276,7 @@ SECTION "Tile Data", ROMX, BANK[1]
 ; * **Page 1** (`offset_TilesCommon = +$0000`) - Common Backgound & ASCII
 ; * **Page 2** (`offset_TilesTitle = +$0800`) - Title Screen
 ; * **Page 3** (`offset_TilesRpgMaps = +$1000`) - RPG Backgrounds
-; * **Page 4** (`offset_TileRpgObjects = +$1800`) - RPG Objects
+; * **Page 4** (`offset_TilesRpgObjects = +$1800`) - RPG Objects
 ;
 ; Pages 5 through 8 are left blank so you can experiment with making and loading
 ; your own graphics.

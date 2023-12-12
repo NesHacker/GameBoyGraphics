@@ -65,32 +65,10 @@ DEF bAnimationTileOffset EQU $C010
 ; The timer used to count frames between swapping the tile offset.
 DEF bAnimationTimer EQU $C011
 
+; Whether or not the chest is open.
+DEF bChestState EQU $C012
+
 SECTION "Demo 2: Objects", ROM0
-
-; ------------------------------------------------------------------------------
-; `binary data ObjectData`
-;
-; Initial data to load into the
-; ------------------------------------------------------------------------------
-ObjectData:
-  ; 4 object tiles for the hero
-  DB HERO_Y,     HERO_X,     HERO_TILE1, 0
-  DB HERO_Y,     HERO_X + 8, HERO_TILE2, 0
-  DB HERO_Y + 8, HERO_X,     HERO_TILE3, 0
-  DB HERO_Y + 8, HERO_X + 8, HERO_TILE4, 0
-  ; 4 objects for the treasure chest
-  DB CHEST_Y,     CHEST_X,     CHEST_TILE1, 0
-  DB CHEST_Y,     CHEST_X + 8, CHEST_TILE2, 0
-  DB CHEST_Y + 8, CHEST_X,     CHEST_TILE3, 0
-  DB CHEST_Y + 8, CHEST_X + 8, CHEST_TILE4, 0
-  ; 4 objects for the slime
-  DB SLIME_Y,     SLIME_X,     SLIME_TILE1, 0
-  DB SLIME_Y,     SLIME_X + 8, SLIME_TILE2, 0
-  DB SLIME_Y + 8, SLIME_X,     SLIME_TILE3, 0
-  DB SLIME_Y + 8, SLIME_X + 8, SLIME_TILE4, 0
-
-; Number of bytes of object data to use to initialize the OAM.
-DEF len_ObjectData EQU 3 * 4 * 4
 
 ; ------------------------------------------------------------------------------
 ; `func Demo2Init()`
@@ -103,6 +81,7 @@ Demo2Init::
   ld [bAnimationTimer], a
   ld a, 0
   ld [bAnimationTileOffset], a
+  ld [bChestState], a
   ; Setup background and object palettes
   ld a, %00100111
   ld [rBGP], a
@@ -111,18 +90,14 @@ Demo2Init::
   ; Load the RPG character sprites into the dedicate objects page.
   ld hl, $8000
   ld bc, $800
-  ld de, TileData + offset_TileRpgObjects
+  ld de, TileData + offset_TilesRpgObjects
   call CopyData
-  ; Clear the object data in RAM (fill with all $FF)
-  ld hl, $C100
-  ld bc, 40 * 4
-  ld d, $FF
-  call FillData
   ; Initialize the objects we want to use for the demo
   ld bc, len_ObjectData
   ld de, ObjectData
   ld hl, $C100
   call CopyData
+  call DMATransfer
   ; Turn on the display and begin rendering only the objects.
   ld a, LCDCF_ON | LCDCF_OBJ8 | LCDCF_OBJON
   ld [rLCDC], a
@@ -134,8 +109,34 @@ Demo2Init::
 ; Executes game loop logic for the demo.
 ; ------------------------------------------------------------------------------
 Demo2Loop::
-  ld hl, $C400
-  inc [hl]
+  ld a, [bJoypadPressed]
+  ld b, a
+  and a, BUTTON_SELECT | BUTTON_B
+  jr z, .continue
+.to_demo_select
+  call LoadDemoSelect
+  ret
+.continue
+  ld a, b
+  and BUTTON_A
+  jr z, .animate
+.toggle_chest
+  ld a, [bChestState]
+  xor 2
+  ld b, a
+  ld [bChestState], a
+  add $2C
+  ld [$C100 + 4 * 4 + 2], a
+  ld a, b
+  add $2D
+  ld [$C100 + 5 * 4 + 2], a
+  ld a, b
+  add $3C
+  ld [$C100 + 6 * 4 + 2], a
+  ld a, b
+  add $3D
+  ld [$C100 + 7 * 4 + 2], a
+.animate
   call AnimateCharacters
   call DMATransfer
   ret
@@ -188,3 +189,28 @@ AnimateCharacters:
   add a, b
   ld [$C100 + 11*4 + 2], a
   ret
+
+; ------------------------------------------------------------------------------
+; `binary data ObjectData`
+;
+; Initial object data for the demo.
+; ------------------------------------------------------------------------------
+ObjectData:
+  ; 4 object tiles for the hero
+  DB HERO_Y,     HERO_X,     HERO_TILE1, 0
+  DB HERO_Y,     HERO_X + 8, HERO_TILE2, 0
+  DB HERO_Y + 8, HERO_X,     HERO_TILE3, 0
+  DB HERO_Y + 8, HERO_X + 8, HERO_TILE4, 0
+  ; 4 objects for the treasure chest
+  DB CHEST_Y,     CHEST_X,     CHEST_TILE1, 0
+  DB CHEST_Y,     CHEST_X + 8, CHEST_TILE2, 0
+  DB CHEST_Y + 8, CHEST_X,     CHEST_TILE3, 0
+  DB CHEST_Y + 8, CHEST_X + 8, CHEST_TILE4, 0
+  ; 4 objects for the slime
+  DB SLIME_Y,     SLIME_X,     SLIME_TILE1, 0
+  DB SLIME_Y,     SLIME_X + 8, SLIME_TILE2, 0
+  DB SLIME_Y + 8, SLIME_X,     SLIME_TILE3, 0
+  DB SLIME_Y + 8, SLIME_X + 8, SLIME_TILE4, 0
+
+; Number of bytes of object data to use to initialize the OAM.
+DEF len_ObjectData EQU 3 * 4 * 4

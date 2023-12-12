@@ -60,7 +60,7 @@ Demo4Init::
   ; Load the RPG character sprites into the dedicate objects page.
   ld hl, $8000
   ld bc, $800
-  ld de, TileData + offset_TileRpgObjects
+  ld de, TileData + offset_TilesRpgObjects
   call CopyData
   ; Load the RPG map tiles into the share page.
   ld hl, $8800
@@ -100,6 +100,13 @@ Demo4Init::
 ; Executes game loop logic for the demo.
 ; ------------------------------------------------------------------------------
 Demo4Loop::
+  ld a, [bJoypadPressed]
+  and a, BUTTON_SELECT | BUTTON_B
+  jr z, .continue
+.to_demo_select
+  call LoadDemoSelect
+  ret
+.continue
   call AnimatePalettes
   call UpdateMapScroll
   call DMATransfer

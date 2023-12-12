@@ -76,5 +76,11 @@ DrawMessage:
 ; Executes game loop logic for the demo.
 ; ------------------------------------------------------------------------------
 Demo1Loop::
-  ; TODO Handle joypad input, etc.
+  ld a, [bJoypadPressed]
+  and a, BUTTON_SELECT | BUTTON_B
+  jr z, .continue
+.to_demo_select
+  call LoadDemoSelect
+  ret
+.continue
   ret

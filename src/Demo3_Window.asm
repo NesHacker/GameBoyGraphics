@@ -69,12 +69,17 @@ Demo3Init::
 ; Executes game loop logic for the demo.
 ; ------------------------------------------------------------------------------
 Demo3Loop::
+  ld a, [bJoypadPressed]
+  and a, BUTTON_SELECT | BUTTON_B
+  jr z, .continue
+.to_demo_select
+  call LoadDemoSelect
+  ret
+.continue
   ; Update the window position
   ld a, [bWindowY]
   ld [rWY], a
-  ; Read the buttons on the joypad
-  call ReadJoypad
-  ; TODO Handle "return to main menu" action (select?)
+  ; Handle behavior based on window state
   ld a, [bWindowState]
   cp a, STATE_CLOSED
   jr z, .closed
