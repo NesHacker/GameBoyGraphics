@@ -51,7 +51,9 @@ Main:
   ld [rOBP0], a
   ld [rOBP1], a
   ; Execute the title screen's initialization routine
-  call TitleScreen.init
+  ; call TitleScreen.init
+
+  call Demo1Init
 
 ; ------------------------------------------------------------------------------
 ; `func GameLoop()`
@@ -60,7 +62,8 @@ Main:
 ; ------------------------------------------------------------------------------
 GameLoop:
   ; TODO: This should call the correct loop handler based on the game state
-  call TitleScreen.loop
+  ; call TitleScreen.loop
+  call Demo1Loop
   jr GameLoop
 
 ; ------------------------------------------------------------------------------
