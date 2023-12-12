@@ -26,25 +26,10 @@ Main:
   call ClearWRAM
   ; Initialize the DMA routine
   call WriteDMARoutine
-  call DMATransfer
-  ; Clear the active tileset
+  ; Clear the active tileset and both backgrounds
   ld hl, $9000
-  ld bc, $1800
-: ld a, 0
-  ld [hli], a
-  dec bc
-  ld a, b
-  or a, c
-  jr nz, :-
-  ; Clear both backgrounds
-  ld hl, $9800
-  ld bc, $800
-: ld a, 0
-  ld [hli], a
-  dec bc
-  ld a, b
-  or a, c
-  jr nz, :-
+  ld bc, $2000
+  call ClearData
   ; Initialize palettes
   ld a, %11100100
   ld [rBGP], a
@@ -53,7 +38,7 @@ Main:
   ; Execute the title screen's initialization routine
   ; call TitleScreen.init
 
-  call Demo1Init
+  call Demo4Init
 
 ; ------------------------------------------------------------------------------
 ; `func GameLoop()`
@@ -61,9 +46,14 @@ Main:
 ; The main loop for the game that handles all logic and rendering.
 ; ------------------------------------------------------------------------------
 GameLoop:
+  WaitForVblank
+  call ReadJoypad
+
   ; TODO: This should call the correct loop handler based on the game state
   ; call TitleScreen.loop
-  call Demo1Loop
+  call Demo4Loop
+
+  WaitForVblankEnd
   jr GameLoop
 
 ; ------------------------------------------------------------------------------
