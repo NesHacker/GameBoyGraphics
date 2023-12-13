@@ -31,6 +31,12 @@ DEF DMATransfer EQU $FF80
 ; Variables
 ; ------------------------------------------------------------------------------
 
+; Holds the current game state. See the `STATE_*` variables in `main.inc`.
+DEF bGameState EQU $C000
+
+; Holds the cursor position for the demo select menu.
+DEF bDemoSelectCursor EQU $C001
+
 ; Bitfield that stores current buttons being pressed on the Game Boy's joypad.
 ;
 ; - Bit 0 (`BUTTON_RIGHT`) - Right D-PAD
@@ -58,15 +64,6 @@ DEF bJoypadPressed EQU $C021
 ; WRAM location for Object (Sprite) OAM data that is transferred to VRAM via DMA
 ; at the end of each frame during the VBLANK period.
 DEF pSpriteOAM EQU $C100
-
-; WRAM copy of the level data that is used to handle game mechanics and events.
-DEF pLevelData EQU $D000
-
-; Holds the current game state. See the `STATE_*` variables in `main.inc`.
-DEF bGameState EQU $C000
-
-; Holds the cursor position for the demo select menu.
-DEF bDemoSelectCursor EQU $C001
 
 ; ------------------------------------------------------------------------------
 ; Constants
@@ -112,6 +109,9 @@ DEF offset_TilesRpgObjects EQU $1800
 ; Tiles used for the demo select menu.
 DEF offset_TilesDemoSelect EQU $2000
 
+; Tiles for the 8x16 object mode demo
+DEF offset_Tiles8x16 EQU $2800
+
 ; Game state representing the title screen.
 DEF STATE_TITLE       EQU 0
 
@@ -129,3 +129,6 @@ DEF STATE_DEMO3       EQU 4
 
 ; Game state representing the scrolling demo.
 DEF STATE_DEMO4       EQU 5
+
+; Game state representing the 8x16 objects demo.
+DEF STATE_DEMO5       EQU 6

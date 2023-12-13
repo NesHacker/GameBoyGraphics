@@ -1,7 +1,11 @@
 INCLUDE "main.inc"
 INCLUDE "hardware.inc"
 
+; Number of demos that can be selected.
+def NUM_DEMOS equ 5
 
+; Y-Position for the cursor when selecting the first demo
+def CURSOR_Y_START EQU 64
 
 SECTION "Demo Select", ROM0
 
@@ -14,7 +18,7 @@ DemoSelectInit::
   ; Initialize the objects we want to use for the demo
   ld bc, len_ObjectData
   ld de, ObjectData
-  ld hl, $C100
+  ld hl, pSpriteOAM
   call CopyData
   ; Load the demo select tiles into the shared page.
   ld hl, $8800
@@ -55,6 +59,8 @@ DemoSelectLoop::
   ret
 .load_demo
   ld a, [bDemoSelectCursor]
+  cp a, 4
+  jr z, .demo5
   cp a, 3
   jr z, .demo4
   cp a, 2
@@ -72,6 +78,9 @@ DemoSelectLoop::
   ret
 .demo4
   call LoadDemo4
+  ret
+.demo5
+  call LoadDemo5
   ret
 .return_to_title
   call LoadTitle
@@ -93,21 +102,25 @@ HandleCursor:
 .down
   ld a, [bDemoSelectCursor]
   inc a
-  and a, %11
-  ld [bDemoSelectCursor], a
+  cp a, NUM_DEMOS
+  jr nz, :+
+  ld a, 0
+: ld [bDemoSelectCursor], a
   jr .continue
 .up
   ld a, [bDemoSelectCursor]
   dec a
-  and a, %11
-  ld [bDemoSelectCursor], a
+  cp a, %11111111
+  jr nz, :+
+  ld a, NUM_DEMOS - 1
+: ld [bDemoSelectCursor], a
 .continue
   ld a, [bDemoSelectCursor]
   sla a
   sla a
   sla a
-  add 72
-  ld [$C100], a
+  add CURSOR_Y_START
+  ld [pSpriteOAM], a
   ret
 
 ; ------------------------------------------------------------------------------
@@ -116,7 +129,7 @@ HandleCursor:
 ; Initial OAM data for the demo select screen.
 ; ------------------------------------------------------------------------------
 ObjectData:
-  DB 72, 40, $8B, 0
+  DB CURSOR_Y_START, 40, $8B, 0
 
 ; Number of object data bytes used by the demo select screen.
 DEF len_ObjectData EQU 4

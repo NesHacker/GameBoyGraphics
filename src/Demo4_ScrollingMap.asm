@@ -78,14 +78,14 @@ Demo4Init::
   ld de, RpgMap
   call CopyData
   ; Clear the object data in RAM (fill with all $FF)
-  ld hl, $C100
+  ld hl, pSpriteOAM
   ld bc, 40 * 4
   ld d, $FF
   call FillData
   ; Initialize the objects we want to use for the demo
   ld bc, len_ObjectData
   ld de, ObjectData
-  ld hl, $C100
+  ld hl, pSpriteOAM
   call CopyData
   ; Transfer over the sprites
   call DMATransfer

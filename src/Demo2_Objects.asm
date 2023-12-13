@@ -95,7 +95,7 @@ Demo2Init::
   ; Initialize the objects we want to use for the demo
   ld bc, len_ObjectData
   ld de, ObjectData
-  ld hl, $C100
+  ld hl, pSpriteOAM
   call CopyData
   call DMATransfer
   ; Turn on the display and begin rendering only the objects.
@@ -126,16 +126,16 @@ Demo2Loop::
   ld b, a
   ld [bChestState], a
   add $2C
-  ld [$C100 + 4 * 4 + 2], a
+  ld [pSpriteOAM + 4 * 4 + 2], a
   ld a, b
   add $2D
-  ld [$C100 + 5 * 4 + 2], a
+  ld [pSpriteOAM + 5 * 4 + 2], a
   ld a, b
   add $3C
-  ld [$C100 + 6 * 4 + 2], a
+  ld [pSpriteOAM + 6 * 4 + 2], a
   ld a, b
   add $3D
-  ld [$C100 + 7 * 4 + 2], a
+  ld [pSpriteOAM + 7 * 4 + 2], a
 .animate
   call AnimateCharacters
   call DMATransfer
@@ -166,28 +166,28 @@ AnimateCharacters:
   ; Swap out the object tiles based on the new offset
   ld a, HERO_TILE1
   add a, b
-  ld [$C100 + 0*4 + 2], a
+  ld [pSpriteOAM + 0*4 + 2], a
   ld a, HERO_TILE2
   add a, b
-  ld [$C100 + 1*4 + 2], a
+  ld [pSpriteOAM + 1*4 + 2], a
   ld a, HERO_TILE3
   add a, b
-  ld [$C100 + 2*4 + 2], a
+  ld [pSpriteOAM + 2*4 + 2], a
   ld a, HERO_TILE4
   add a, b
-  ld [$C100 + 3*4 + 2], a
+  ld [pSpriteOAM + 3*4 + 2], a
   ld a, SLIME_TILE1
   add a, b
-  ld [$C100 + 8*4 + 2], a
+  ld [pSpriteOAM + 8*4 + 2], a
   ld a, SLIME_TILE2
   add a, b
-  ld [$C100 + 9*4 + 2], a
+  ld [pSpriteOAM + 9*4 + 2], a
   ld a, SLIME_TILE3
   add a, b
-  ld [$C100 + 10*4 + 2], a
+  ld [pSpriteOAM + 10*4 + 2], a
   ld a, SLIME_TILE4
   add a, b
-  ld [$C100 + 11*4 + 2], a
+  ld [pSpriteOAM + 11*4 + 2], a
   ret
 
 ; ------------------------------------------------------------------------------

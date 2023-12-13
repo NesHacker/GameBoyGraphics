@@ -71,7 +71,7 @@ InitDisplayState:
   call ClearData
   ; Clear the OAM
   ld bc, 40 * 4
-  ld hl, $C100
+  ld hl, pSpriteOAM
   ld d, $FF
   call FillData
   ; Reset palettes
@@ -100,6 +100,8 @@ GameLoop:
   jr z, .demo3
   cp a, STATE_DEMO4
   jr z, .demo4
+  cp a, STATE_DEMO5
+  jr z, .demo5
 .title
   call TitleLoop
   jr .done
@@ -118,6 +120,8 @@ GameLoop:
 .demo4
   call Demo4Loop
   jr .done
+.demo5
+  call Demo5Loop
 .done
   WaitForVblankEnd
   jr GameLoop
@@ -180,6 +184,17 @@ LoadDemo3::
 LoadDemo4::
   SetGameState STATE_DEMO4
   call Demo4Init
+  ret
+
+
+; ------------------------------------------------------------------------------
+; `func LoadDemo5()`
+;
+; Loads the fifth demo.
+; ------------------------------------------------------------------------------
+LoadDemo5::
+  SetGameState STATE_DEMO5
+  call Demo5Init
   ret
 
 ; ------------------------------------------------------------------------------
