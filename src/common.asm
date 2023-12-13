@@ -1,7 +1,7 @@
 SECTION "Common Routines", ROM0
 
 ; ------------------------------------------------------------------------------
-; `func CopyData(bc, de, hl)`
+; `func MemCopy(bc, de, hl)`
 ;
 ; * `bc` - Number of bytes to copy.
 ; * `de` - Start address of the source data.
@@ -9,18 +9,18 @@ SECTION "Common Routines", ROM0
 ;
 ; Copies bytes from one location in memory to another.
 ; ------------------------------------------------------------------------------
-CopyData::
+MemCopy::
   ld a, [de]
   inc de
   ld [hli], a
   dec bc
   ld a, b
   or a, c
-  jr nz, CopyData
+  jr nz, MemCopy
   ret
 
 ; ------------------------------------------------------------------------------
-; `func FillData(hl, bc, d)`
+; `func MemFill(hl, bc, d)`
 ;
 ; * `hl` - Start address for the data to fill.
 ; * `bc` - Number of bytes to fill.
@@ -28,17 +28,17 @@ CopyData::
 ;
 ; Fills data in RAM with the specified value.
 ; ------------------------------------------------------------------------------
-FillData::
+MemFill::
   ld a, d
   ld [hli], a
   dec bc
   ld a, b
   or a, c
-  jr nz, FillData
+  jr nz, MemFill
   ret
 
 ; ------------------------------------------------------------------------------
-; `func ClearData(hl, bc, d)`
+; `func MemClear(hl, bc, d)`
 ;
 ; * `hl` - Start address for the data to clear.
 ; * `bc` - Number of bytes to clear.
@@ -46,11 +46,11 @@ FillData::
 ; Clears bytes in RAM starting at the given address with the specified number of
 ; zeros.
 ; ------------------------------------------------------------------------------
-ClearData::
+MemClear::
   ld a, 0
   ld [hli], a
   dec bc
   ld a, b
   or a, c
-  jr nz, ClearData
+  jr nz, MemClear
   ret

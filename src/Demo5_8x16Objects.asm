@@ -27,21 +27,21 @@ Demo5Init::
   ld hl, $9000
   ld bc, $800
   ld de, TileData + offset_TilesCommon
-  call CopyData
+  call MemCopy
   ; Load the 8x16 object tiles into the dedicated object page.
   ld hl, $8000
   ld bc, $800
   ld de, TileData + offset_Tiles8x16
-  call CopyData
+  call MemCopy
   ; Clear the background graphics
   ld hl, $9800
   ld bc, 32 * 32
-  call ClearData
+  call MemClear
   ; Copy the Initial OAM data
   ld hl, pSpriteOAM
   ld bc, len_ObjectData
   ld de, ObjectData
-  call CopyData
+  call MemCopy
   call DMATransfer
   ; Turn on the display and begin rendering the background.
   ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJ16 | LCDCF_OBJON

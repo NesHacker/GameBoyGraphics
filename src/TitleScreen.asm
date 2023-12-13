@@ -115,17 +115,17 @@ TitleInit::
   ld hl, $9000
   ld bc, $800
   ld de, TileData + offset_TilesCommon
-  call CopyData
+  call MemCopy
   ; Load the title specific graphics into shared tiles page in VRAM.
   ld hl, $8800
   ld bc, $800
   ld de, TileData + offset_TilesTitle
-  call CopyData
+  call MemCopy
   ; Load title screen
   ld hl, $9800
   ld de, TitleScreenTilemap
   ld bc, 32 * 32
-  call CopyData
+  call MemCopy
   ; Initialize the animation state for the game boy displays
   ld a, StaticFrameDelay
   ld [bStaticTimer], a

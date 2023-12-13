@@ -61,32 +61,32 @@ Demo4Init::
   ld hl, $8000
   ld bc, $800
   ld de, TileData + offset_TilesRpgObjects
-  call CopyData
+  call MemCopy
   ; Load the RPG map tiles into the share page.
   ld hl, $8800
   ld bc, $800
   ld de, TileData + offset_TilesRpgMaps
-  call CopyData
+  call MemCopy
   ; Load common background tiles into VRAM in the dedicated BG page.
   ld hl, $9000
   ld bc, $800
   ld de, TileData + offset_TilesCommon
-  call CopyData
+  call MemCopy
   ; Load the RPG map into the background
   ld hl, $9800
   ld bc, 32 * 32
   ld de, RpgMap
-  call CopyData
+  call MemCopy
   ; Clear the object data in RAM (fill with all $FF)
   ld hl, pSpriteOAM
   ld bc, 40 * 4
   ld d, $FF
-  call FillData
+  call MemFill
   ; Initialize the objects we want to use for the demo
   ld bc, len_ObjectData
   ld de, ObjectData
   ld hl, pSpriteOAM
-  call CopyData
+  call MemCopy
   ; Transfer over the sprites
   call DMATransfer
   ; Turn on the display and begin rendering the background.

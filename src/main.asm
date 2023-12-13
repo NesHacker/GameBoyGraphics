@@ -40,7 +40,7 @@ Main:
   ; Zero out the RAM
   ld bc, $2000
   ld hl, $C000
-  call ClearData
+  call MemClear
   ; Initialize the state of the LCD
   call InitDisplayState
   ; Initialize the DMA routine
@@ -68,12 +68,12 @@ InitDisplayState:
   ; Clear the active tileset and both backgrounds
   ld hl, $9000
   ld bc, $2000
-  call ClearData
+  call MemClear
   ; Clear the OAM
   ld bc, 40 * 4
   ld hl, pSpriteOAM
   ld d, $FF
-  call FillData
+  call MemFill
   ; Reset palettes
   ld a, %11100100
   ld [rBGP], a

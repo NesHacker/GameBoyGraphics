@@ -91,12 +91,12 @@ Demo2Init::
   ld hl, $8000
   ld bc, $800
   ld de, TileData + offset_TilesRpgObjects
-  call CopyData
+  call MemCopy
   ; Initialize the objects we want to use for the demo
   ld bc, len_ObjectData
   ld de, ObjectData
   ld hl, pSpriteOAM
-  call CopyData
+  call MemCopy
   call DMATransfer
   ; Turn on the display and begin rendering only the objects.
   ld a, LCDCF_ON | LCDCF_OBJ8 | LCDCF_OBJON

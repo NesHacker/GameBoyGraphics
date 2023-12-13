@@ -26,11 +26,11 @@ Demo1Init::
   ld hl, $9000
   ld bc, $800
   ld de, TileData + offset_TilesCommon
-  call CopyData
+  call MemCopy
   ; Clear the background graphics
   ld hl, $9800
   ld bc, 32 * 32
-  call ClearData
+  call MemClear
   ; Draw the message to the screen
   call DrawMessage
   ; Turn on the display and begin rendering the background.

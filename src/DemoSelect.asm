@@ -19,22 +19,22 @@ DemoSelectInit::
   ld bc, len_ObjectData
   ld de, ObjectData
   ld hl, pSpriteOAM
-  call CopyData
+  call MemCopy
   ; Load the demo select tiles into the shared page.
   ld hl, $8800
   ld bc, $800
   ld de, TileData + offset_TilesDemoSelect
-  call CopyData
+  call MemCopy
   ; Load common background tiles into VRAM in the dedicated BG page.
   ld hl, $9000
   ld bc, $800
   ld de, TileData + offset_TilesCommon
-  call CopyData
+  call MemCopy
   ; Draw the background for the select screen
   ld hl, $9800
   ld bc, 32 * 32
   ld de, DemoSelectTilemap
-  call CopyData
+  call MemCopy
   ; Turn on the display and begin rendering the background and objects.
   ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJ8 | LCDCF_OBJON
   ld [rLCDC], a

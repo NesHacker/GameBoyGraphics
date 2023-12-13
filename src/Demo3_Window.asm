@@ -42,17 +42,17 @@ Demo3Init::
   ld hl, $9000
   ld bc, $800
   ld de, TileData + offset_TilesCommon
-  call CopyData
+  call MemCopy
   ; Draw the background graphics
   ld bc, 32 * 32
   ld de, BackgroundTiles
   ld hl, $9800
-  call CopyData
+  call MemCopy
   ; Draw the window graphics
   ld bc, 32 * 32
   ld de, WindowTiles
   ld hl, $9C00
-  call CopyData
+  call MemCopy
   ; Set the window x & y position
   ld a, 7
   ld [rWX], a
