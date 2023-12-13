@@ -31,6 +31,12 @@ DEF DMATransfer EQU $FF80
 ; Variables
 ; ------------------------------------------------------------------------------
 
+; Holds the current game state. See the `STATE_*` variables in `main.inc`.
+DEF bGameState EQU $C000
+
+; Holds the cursor position for the demo select menu.
+DEF bDemoSelectCursor EQU $C001
+
 ; Bitfield that stores current buttons being pressed on the Game Boy's joypad.
 ;
 ; - Bit 0 (`BUTTON_RIGHT`) - Right D-PAD
@@ -59,24 +65,9 @@ DEF bJoypadPressed EQU $C021
 ; at the end of each frame during the VBLANK period.
 DEF pSpriteOAM EQU $C100
 
-; WRAM copy of the level data that is used to handle game mechanics and events.
-DEF pLevelData EQU $D000
-
 ; ------------------------------------------------------------------------------
 ; Constants
 ; ------------------------------------------------------------------------------
-
-; Length of the OAM data region, in bytes.
-DEF len_SpriteOAM EQU 160
-
-; Number of bytes in the tileset for the game.
-DEF len_Tileset EQU 6144
-
-; Number of bytes in the level's tilemap.
-DEF len_LevelTilemap EQU 1024
-
-; Number of bytes int the level data.
-DEF len_LevelData EQU 1024
 
 ; Button mask for the right D-PAD button.
 DEF BUTTON_RIGHT  EQU 1 << 0
@@ -102,23 +93,42 @@ DEF BUTTON_SELECT EQU 1 << 6
 ; Button mask for the start button.
 DEF BUTTON_START  EQU 1 << 7
 
-; ------------------------------------------------------------------------------
 ; 128 tiles that hold common background elements such as colors and window
 ; borders along with a limited ASCII font.
-; ------------------------------------------------------------------------------
 DEF offset_TilesCommon EQU 0
 
-; ------------------------------------------------------------------------------
 ; Holds the graphics used on the title and main menu screens.
-; ------------------------------------------------------------------------------
 DEF offset_TilesTitle EQU $800
 
-; ------------------------------------------------------------------------------
 ; Tiles for building RPG maps in various demos.
-; ------------------------------------------------------------------------------
 DEF offset_TilesRpgMaps EQU $1000
 
-; ------------------------------------------------------------------------------
 ; Tiles used to draw RPG objects and characters.
-; ------------------------------------------------------------------------------
-DEF offset_TileRpgObjects EQU $1800
+DEF offset_TilesRpgObjects EQU $1800
+
+; Tiles used for the demo select menu.
+DEF offset_TilesDemoSelect EQU $2000
+
+; Tiles for the 8x16 object mode demo
+DEF offset_Tiles8x16 EQU $2800
+
+; Game state representing the title screen.
+DEF STATE_TITLE       EQU 0
+
+; Game state representing the demo selection screen.
+DEF STATE_DEMO_SELECT EQU 1
+
+; Game state representing the background demo.
+DEF STATE_DEMO1       EQU 2
+
+; Game state representing the objects demo.
+DEF STATE_DEMO2       EQU 3
+
+; Game state representing the window demo.
+DEF STATE_DEMO3       EQU 4
+
+; Game state representing the scrolling demo.
+DEF STATE_DEMO4       EQU 5
+
+; Game state representing the 8x16 objects demo.
+DEF STATE_DEMO5       EQU 6
