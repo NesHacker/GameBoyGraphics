@@ -1,6 +1,6 @@
 # GameBoyGraphics
 Graphics programming examples for the [NesHacker](https://youtube.com/NesHacker)
-video ["Game Boy Graphics and How to Code Them"](https://youtube.com/NesHacker).
+video ["Game Boy Graphics and How to Code Them"](https://www.youtube.com/watch?v=F2AXJgsrs90).
 
 ## How to Build the ROM
 
